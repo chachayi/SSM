@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+    <context:component-scan base-package="com.ssm"/>
+
+    <!-- Spring配置文件的核心点（数据源、与mybatis的整合，事务控制） -->
+
+    <!--=================== 数据源，事务控制，xxx ================-->
+    <context:property-placeholder location="classpath:jdbc.properties"  ignore-unresolvable="true"/>
+
+    <!-- 数据库连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="driverClass" value="${jdbc.driver}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true"  />
+    <!-- redis连接池 JedisPool是一个线程安全的连接池。可以用JedisPool创建一些可靠Jedis实例，也可以从池中拿到Jedis的实例 -->
+    <bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <!-- 最大空闲数 -->
+        <property name="maxIdle" value="200" />
+        <!-- 最大空闲数 -->
+        <property name="maxTotal" value="1024" />
+        <!-- 最大等待时间 -->
+        <property name="maxWaitMillis" value="10000" />
+        <!-- 返回连接时，检测连接是否成功 -->
+        <property name="testOnBorrow" value="true" />
+    </bean>
+    <!-- Spring-redis连接池管理工厂 -->
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <!-- IP地址 -->
+        <property name="hostName" value="127.0.0.1" />
+        <!-- 端口号 -->
+        <property name="port" value="6379" />
+        <!-- 超时时间 -->
+        <property name="timeout" value="100000" />
+        <property name="poolConfig" ref="poolConfig" />
+    </bean>
+    <!-- redis模板类，提供了对缓存的增删改查  提供了一些对Redis命令的操作-->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactory" />
+        <!--序列化普通键（非hash类型的键）方式 -->
+        <property name="keySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" /><!--key-value都是字符串下使用 -->
+        </property>
+        <!--序列化值方式 -->
+        <property name="valueSerializer">
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" /><!--序列化java对象 -->
+        </property>
+        <!--开启事务 -->
+        <property name="enableTransactionSupport" value="true"/>
+    </bean>
+
+    <!-- Redis缓存管理对象  管理的是缓存中的数据 -->
+    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager">
+        <constructor-arg index="0" ref="redisTemplate" />
+    </bean>
+
+    <!--================== 配置和MyBatis的整合=============== -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 指定mybatis全局配置文件的位置 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 指定mybatis的mapper文件的位置 -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!-- 配置扫描器，将mybatis接口的实现加入到ioc容器中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--扫描所有dao接口的实现，加入到ioc容器中 -->
+        <property name="basePackage" value="com.ssm.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!-- ===============定义事务管理器 ================-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--控制数据源  -->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- 开启事务注解@Transaction支持 -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+
+    <context id="DB2Tables" targetRuntime="MyBatis3" defaultModelType="flat">
+        <commentGenerator>
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <!-- 配置数据库连接 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/ssh" userId="root"
+                        password="admin">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false" />
+        </javaTypeResolver>
+
+        <!-- 指定javaBean生成的位置 -->
+        <javaModelGenerator targetPackage="com.com.ssm.bean"
+                            targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="true" />
+        </javaModelGenerator>
+
+        <!--指定sql映射文件生成的位置 -->
+        <sqlMapGenerator targetPackage="mapper" targetProject=".\src\main\resources">
+            <property name="enableSubPackages" value="true" />
+        </sqlMapGenerator>
+
+        <!-- 指定dao接口生成的位置，mapper接口 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.com.ssm.dao" targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="true" />
+        </javaClientGenerator>
+
+        <!-- table指定每个表的生成策略 -->
+        <!--&lt;!&ndash;学员实体&ndash;&gt;-->
+        <!--<table tableName="user" domainObjectName="User"/>-->
+        <!--&lt;!&ndash;汽车实体&ndash;&gt;-->
+        <!--<table tableName="cars" domainObjectName="Car"/>-->
+        <!--&lt;!&ndash;教练实体&ndash;&gt;-->
+        <!--<table tableName="trainer" domainObjectName="Trainer"/>-->
+        <!--课程实体-->
+        <table tableName="user" domainObjectName="User">
+            <!-- 保持数据库字段与实体类字段一致 -->
+            <property name="useActualColumnNames" value="true" />
+        </table>
+        <!--&lt;!&ndash;评论实体&ndash;&gt;-->
+        <!--<table tableName="message" domainObjectName="Message"/>-->
+        <!--&lt;!&ndash;考试实体&ndash;&gt;-->
+        <!--<table tableName="test" domainObjectName="Test"/>-->
+        <!--&lt;!&ndash;训练场地实体&ndash;&gt;-->
+        <!--<table tableName="training_field" domainObjectName="Training_field">-->
+            <!--&lt;!&ndash; 保持数据库字段与实体类字段一致 &ndash;&gt;-->
+            <!--<property name="useActualColumnNames" value="true" />-->
+        <!--</table>-->
+    </context>
+</generatorConfiguration>

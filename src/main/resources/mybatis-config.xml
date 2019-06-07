@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!--是否开启驼峰命名法-->
+        <!--数据库字段： is_man
+         bean：  private Integer isMan会自动映射 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--是否开启二级缓存-->
+        <setting name="cacheEnabled" value="true"/>
+        <!--打印SQL语句-->
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+
+    <typeAliases>
+    <!--实体类别名-->
+        <typeAlias alias="user" type="com.ssm.model.User"/>
+        <typeAlias alias="article" type="com.ssm.model.Article"/>
+        <typeAlias alias="comment" type="com.ssm.model.Comment"/>
+        <typeAlias alias="replyComment" type="com.ssm.model.ReplyComment"/>
+    </typeAliases>
+
+</configuration>
+
